@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desafio das Equações - Aluno</title>
+  <style>
+    :root{--green:#62b84e;--dark:#14202b;--gold:#ffd54a}
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Verdana,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 18% 14%,white 0 3%,transparent 3.5%),
+        radial-gradient(circle at 28% 14%,white 0 5%,transparent 5.5%),
+        radial-gradient(circle at 75% 19%,white 0 4%,transparent 4.5%),
+        linear-gradient(to bottom,#6ec8ff 0 47%,#8fce53 47% 51%,#4f7c34 51% 55%,#7a4b27 55% 100%);
+      color:#fff;
+      overflow-x:hidden;
+    }
+    body:after{
+      content:"";
+      position:fixed;inset:0;pointer-events:none;opacity:.14;
+      background-image:
+        linear-gradient(90deg,rgba(255,255,255,.45) 1px,transparent 1px),
+        linear-gradient(rgba(255,255,255,.45) 1px,transparent 1px);
+      background-size:32px 32px;
+    }
+    .wrap{max-width:900px;margin:auto;padding:24px 16px 50px;position:relative;z-index:2}
+    .cab{text-align:center;text-shadow:3px 3px #0b0f14;margin-bottom:16px}
+    .cab h1{font-size:clamp(28px,6vw,52px);margin:4px 0}
+    .cab p{font-size:18px;font-weight:700}
+    .painel{
+      background:rgba(24,36,48,.86);
+      border:5px solid #0b1118;
+      border-radius:7px;
+      box-shadow:10px 10px 0 rgba(0,0,0,.28);
+      padding:22px;
+    }
+    .inicio{max-width:620px;margin:0 auto}
+    label{font-weight:800;display:block;margin:13px 0 7px}
+    input,select{
+      width:100%;padding:14px;border:4px solid #475569;border-radius:4px;
+      background:#fff;color:#111;font-size:18px
+    }
+    button{
+      width:100%;padding:15px;margin-top:15px;border:0;border-radius:4px;
+      font-size:18px;font-weight:900;cursor:pointer;
+      box-shadow:0 5px 0 rgba(0,0,0,.35);
+      transition:.1s
+    }
+    button:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
+    .start{background:#65c74f;color:#17310f}
+    .hud{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .tag{background:#0b1220;border:3px solid #334155;padding:9px 12px;border-radius:4px;font-weight:800}
+    .questao{
+      background:#f8fafc;color:#111827;border:5px solid #d1d5db;
+      padding:22px;text-align:center;margin:14px 0;border-radius:6px
+    }
+    .questao .eq{font-size:clamp(30px,7vw,54px);font-weight:900;margin:12px 0;color:#183b1f}
+    .alternativas{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .alt{
+      background:#fef3c7;color:#3f2c00;border:4px solid #d97706;margin:0;
+      min-height:70px
+    }
+    .alt:hover{filter:brightness(1.04)}
+    .alt.certa{background:#86efac;border-color:#15803d}
+    .alt.errada{background:#fca5a5;border-color:#b91c1c}
+    .feedback{min-height:34px;font-size:20px;font-weight:900;text-align:center;margin-top:14px}
+    .proxima{background:#60a5fa;color:#071a34;display:none}
+    .final{text-align:center}
+    .final .trofeu{font-size:70px}
+    .placar{font-size:38px;font-weight:900;color:#fde047;text-shadow:2px 2px #000}
+    .barra{height:22px;background:#334155;border:3px solid #0f172a;margin:12px 0;border-radius:3px;overflow:hidden}
+    .barra>div{height:100%;background:#65c74f;width:0;transition:.3s}
+    .hidden{display:none}
+    .dica{background:#fef9c3;color:#463600;border:3px solid #eab308;padding:10px;border-radius:4px;margin-top:12px}
+    @media(max-width:600px){.alternativas{grid-template-columns:1fr}.painel{padding:15px}.tag{flex:1 1 45%}}
+  
+    /* VISUAL LIMPO — sem imagens de interface usadas como fundo */
+    .pausa{background:#fbbf24;color:#3b2600}.retomar{background:#60a5fa;color:#071a34}
+    .acoes-jogo{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.acoes-jogo button{margin-top:0}
+    .modal-pausa{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:18px}
+    .modal-pausa.hidden{display:none}.modal-box{width:min(520px,100%);background:#172433;border:5px solid #0b1118;padding:24px;text-align:center;border-radius:7px}
+    .codigo{display:inline-block;background:#fef3c7;color:#422f00;border:5px solid #f59e0b;font-size:54px;font-weight:900;letter-spacing:10px;padding:12px 18px;margin:14px 0}
+    .retomar-box{margin-top:20px;padding-top:18px;border-top:3px dashed #64748b}.retomar-linha{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+    .ranking-tela h2{text-align:center}
+    .ranking-wrap{overflow-x:auto;background:rgba(10,20,30,.88);border:4px solid #0b1118;border-radius:6px}
+    .ranking-table{width:100%;border-collapse:collapse;min-width:560px}
+    .ranking-table th,.ranking-table td{padding:12px 10px;border-bottom:2px solid #334155;text-align:left}
+    .ranking-table th{background:#fbbf24;color:#3b2600}.ranking-table tr:nth-child(even) td{background:rgba(255,255,255,.05)}
+    .ranking-vazio{text-align:center;padding:22px;font-weight:700}.ranking-acoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.ranking-acoes button{width:auto;flex:1}
+    .rank-hotspot{position:fixed;z-index:40;right:18px;top:18px;width:auto;min-width:180px;margin:0;padding:12px 18px;background:#fbbf24;color:#3b2600;border:3px solid #92400e;border-radius:6px;box-shadow:0 5px 0 rgba(0,0,0,.35);font-weight:900;cursor:pointer}
+    .rank-hotspot::after{content:"🏆 RANKING"}.rank-hotspot:hover{filter:brightness(1.05)}
+    @media(max-width:600px){.acoes-jogo,.retomar-linha{grid-template-columns:1fr}.rank-hotspot{position:static;width:100%;margin:0 auto 12px}.codigo{font-size:38px;letter-spacing:6px}}
+  </style>
+</head>
+<body>
+<button id="abrirRanking" class="rank-hotspot" type="button" aria-label="Abrir ranking" title="Abrir ranking"></button>
+<main class="wrap">
+    <header class="cab">
+      <h1>⛏️ Desafio das Equações</h1>
+      <p>Resolva, ganhe pontos e suba no ranking!</p>
+    </header>
+
+    <section class="painel inicio" id="telaInicio">
+      <h2>🎮 Preparado para a missão?</h2>
+      <p>Digite seus dados e entre no mundo das equações!</p>
+
+      <label for="nome">Seu nome</label>
+      <input id="nome" maxlength="40" placeholder="Digite seu nome">
+
+      <label for="serie">Sua sala</label>
+      <input id="serie" maxlength="10" autocomplete="off" placeholder="Ex.: 7A">
+
+      <div class="dica">💡 Dica: pense no objetivo como “libertar o x”. Faça a operação inversa dos dois lados.</div>
+      <button class="start" id="comecar">▶ COMEÇAR A JOGAR</button>
+<div class="retomar-box"><h3>⏳ Retomar aventura</h3><p>Digite seu código de 4 dígitos.</p>
+<div class="retomar-linha"><input id="codigoRetomar" inputmode="numeric" maxlength="4" placeholder="Ex.: 4827">
+<button class="retomar" id="retomarJogo" type="button">▶ RETOMAR</button></div></div>
+    </section>
+
+    <section class="painel hidden" id="telaJogo">
+      <div class="hud">
+        <div class="tag">👤 <span id="nomeHud"></span></div>
+        <div class="tag">📘 <span id="serieHud"></span></div>
+        <div class="tag">⭐ <span id="pontosHud">0</span> pts</div>
+        <div class="tag">🧱 <span id="numeroQ">1</span>/<span id="totalQ">0</span></div>
+      </div>
+
+      <div class="barra"><div id="progresso"></div></div>
+
+      <div class="questao">
+        <div>🔎 Encontre o valor de <strong>x</strong>:</div>
+        <div class="eq" id="equacao"></div>
+        <div>Qual alternativa resolve a equação?</div>
+      </div>
+
+      <div class="alternativas" id="alternativas"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="acoes-jogo">
+<button class="pausa" id="darUmTempo" type="button">⏸ DAR UM TEMPO</button>
+<button class="proxima" id="proxima">Próxima missão ➜</button></div>
+    </section>
+
+    <section class="painel final hidden" id="telaFinal">
+      <div class="trofeu">🏆</div>
+      <h2>Missão concluída!</h2>
+      <p id="textoFinal"></p>
+      <div class="placar" id="placarFinal"></div>
+      <button class="start" id="jogarNovamente">🔁 Jogar novamente</button>
+    </section>
+  
+    <section class="painel ranking-tela hidden" id="telaRanking">
+      <h2>🏆 Ranking dos Jogadores</h2>
+      <p style="text-align:center">Veja quem chegou mais longe no Desafio das Equações!</p>
+      <div class="ranking-wrap">
+        <table class="ranking-table">
+          <thead><tr><th>#</th><th>Nome</th><th>Sala</th><th>Pontos</th><th>Acertos</th><th>%</th></tr></thead>
+          <tbody id="rankingFirebase"><tr><td colspan="6" class="ranking-vazio">Carregando ranking...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="ranking-acoes">
+        <button class="retomar" id="atualizarRanking" type="button">🔄 ATUALIZAR</button>
+        <button class="pausa" id="voltarRanking" type="button">⬅ VOLTAR</button>
+      </div>
+    </section>
+
+    <div class="modal-pausa hidden" id="modalPausa"><div class="modal-box">
+<div style="font-size:54px">💾</div><h2>Progresso salvo!</h2>
+<p>Anote ou tire uma foto. Você pode continuar depois, inclusive em outro aparelho.</p>
+<div class="codigo" id="codigoGerado">0000</div><p><strong>Guarde este código.</strong></p>
+<button class="start" id="sairDepoisSalvar" type="button">✓ JÁ ANOTEI</button>
+</div></div></main>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {getFirestore,doc,getDoc,setDoc,updateDoc,addDoc,collection,serverTimestamp,getDocs,query,orderBy,limit} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyAJ8DYBwPmgYT-acXs4k7c_OFIHQnlhb3Y",authDomain:"desafio-equa.firebaseapp.com",projectId:"desafio-equa",storageBucket:"desafio-equa.firebasestorage.app",messagingSenderId:"135711999234",appId:"1:135711999234:web:e5efb7555edde97aa46e1b",measurementId:"G-8GQY4K6H35"};
+const app=initializeApp(firebaseConfig),db=getFirestore(app);let codigoPartidaAtual=null;
+
+const CHAVE_Q='equacoes_minecraft_questoes';
+const CHAVE_R='equacoes_minecraft_ranking';
+
+const questoesPadrao=[
+ {equacao:'3x - 7 = 20',alternativas:['7','8','9','10'],correta:2,pontos:100},
+ {equacao:'4x + 6 = 30',alternativas:['4','5','6','7'],correta:2,pontos:100},
+ {equacao:'5x - 8 = 27',alternativas:['5','6','7','8'],correta:2,pontos:100},
+ {equacao:'4m + 12 = 2m + 24',alternativas:['4','5','6','7'],correta:2,pontos:100},
+ {equacao:'6x - 10 = 3x + 20',alternativas:['8','9','10','12'],correta:2,pontos:100},
+ {equacao:'7y + 5 = 5y + 19',alternativas:['5','6','7','8'],correta:2,pontos:100},
+ {equacao:'3(x - 4) = 18',alternativas:['8','9','10','11'],correta:2,pontos:100},
+ {equacao:'2(x + 5) = 24',alternativas:['5','6','7','8'],correta:2,pontos:100},
+ {equacao:'4(x - 2) = 28',alternativas:['7','8','9','10'],correta:2,pontos:100},
+ {equacao:'x/3 + 4 = 10',alternativas:['12','15','18','21'],correta:2,pontos:100},
+ {equacao:'y/5 + 2 = 8',alternativas:['20','25','30','35'],correta:2,pontos:100},
+ {equacao:'m/4 - 3 = 5',alternativas:['24','28','32','36'],correta:2,pontos:100},
+ {equacao:'8x - 15 = 5x + 12',alternativas:['7','8','9','10'],correta:2,pontos:100},
+ {equacao:'5(x - 3) = 30',alternativas:['7','8','9','10'],correta:2,pontos:100},
+ {equacao:'x/2 + 7 = 15',alternativas:['12','14','16','18'],correta:2,pontos:100},
+ {equacao:'4x - 7 = 29',alternativas:['7','8','9','10'],correta:2,pontos:100},
+ {equacao:'6x + 5 = 2x + 33',alternativas:['5','6','7','8'],correta:2,pontos:120},
+ {equacao:'5x - 9 = 2x + 18',alternativas:['7','8','9','10'],correta:2,pontos:120},
+ {equacao:'3m + 14 = m + 30',alternativas:['6','7','8','9'],correta:2,pontos:120},
+ {equacao:'8y - 11 = 5y + 16',alternativas:['7','8','9','10'],correta:2,pontos:120},
+ {equacao:'4(x - 3) = 32',alternativas:['8','9','10','11'],correta:3,pontos:130},
+ {equacao:'5(x + 2) = 45',alternativas:['5','6','7','8'],correta:2,pontos:130},
+ {equacao:'3(x - 5) + 6 = 24',alternativas:['9','10','11','12'],correta:2,pontos:150},
+ {equacao:'2(x + 4) - 3 = 19',alternativas:['5','6','7','8'],correta:2,pontos:150},
+ {equacao:'4(x - 2) + 6 = 30',alternativas:['6','7','8','9'],correta:2,pontos:150},
+ {equacao:'x/4 + 5 = 11',alternativas:['16','20','24','28'],correta:2,pontos:130},
+ {equacao:'y/3 - 4 = 5',alternativas:['21','24','27','30'],correta:2,pontos:130},
+ {equacao:'m/6 + 3 = 8',alternativas:['24','27','30','36'],correta:2,pontos:130},
+ {equacao:'x/5 + 7 = 11',alternativas:['15','18','20','25'],correta:2,pontos:140},
+ {equacao:'(x/3) + 2 = 7',alternativas:['9','12','15','18'],correta:2,pontos:140},
+ {equacao:'7x - 4 = 3x + 28',alternativas:['6','7','8','9'],correta:2,pontos:150},
+ {equacao:'9x + 7 = 6x + 34',alternativas:['7','8','9','10'],correta:2,pontos:150},
+ {equacao:'2m + 18 = m - 15',alternativas:['-35','-34','-33','-32'],correta:2,pontos:170},
+ {equacao:'3(x - 2) = 2x + 7',alternativas:['11','12','13','14'],correta:2,pontos:170},
+ {equacao:'(y/4) + 6 = 10',alternativas:['12','14','16','18'],correta:2,pontos:150}
+];
+
+let questoes=[], indice=0, pontos=0, acertos=0, bloqueado=false, jogador={};
+
+function lerQuestoes(){
+  const q=JSON.parse(localStorage.getItem(CHAVE_Q)||'null');
+  if(!q || !q.length){ localStorage.setItem(CHAVE_Q,JSON.stringify(questoesPadrao)); return questoesPadrao; }
+  const existentes=new Set(q.map(item=>item.equacao));
+  const novas=questoesPadrao.filter(item=>!existentes.has(item.equacao));
+  if(novas.length){ q.push(...novas); localStorage.setItem(CHAVE_Q,JSON.stringify(q)); }
+  return q;
+}
+function embaralhar(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+async function codigoLivre(){for(let i=0;i<50;i++){const c=String(Math.floor(1000+Math.random()*9000));if(!(await getDoc(doc(db,"progresso",c))).exists())return c}throw Error("codigo")}
+async function salvarNuvem(){
+ const b=document.getElementById("darUmTempo");b.disabled=true;b.textContent="💾 SALVANDO...";
+ try{const codigo=codigoPartidaAtual||await codigoLivre();await setDoc(doc(db,"progresso",codigo),{codigo,nome:jogador.nome,sala:jogador.serie||"",pontos:Number(pontos)||0,acertos:Number(acertos)||0,indice:Number(indice)||0,questoes,status:"ativo",atualizadoEm:serverTimestamp()},{merge:true});codigoPartidaAtual=codigo;document.getElementById("codigoGerado").textContent=codigo;document.getElementById("modalPausa").classList.remove("hidden")}
+ catch(e){console.error(e);alert("Não consegui salvar. Verifique a internet.")}finally{b.disabled=false;b.textContent="⏸ DAR UM TEMPO"}
+}
+async function retomarNuvem(){
+  const c=document.getElementById("codigoRetomar").value.replace(/\D/g,"").slice(0,4);
+  if(c.length!==4){alert("Digite os 4 dígitos.");return}
+  try{
+    const s=await getDoc(doc(db,"progresso",c));
+    if(!s.exists()){alert("Código não encontrado.");return}
+    const d=s.data();
+    if(d.status==="finalizado"){alert("Essa partida já foi concluída.");return}
+
+    // O código é apenas a chave da partida. Nome e sala vêm do cadastro original salvo no Firebase.
+    jogador={nome:String(d.nome||"").trim(),serie:String(d.sala||"").trim()};
+    if(!jogador.nome){alert("Esta partida não possui o nome original salvo.");return}
+
+    questoes=Array.isArray(d.questoes)?d.questoes:[];
+    indice=Math.max(0,Number(d.indice)||0);
+    pontos=Math.max(0,Number(d.pontos)||0);
+    acertos=Math.max(0,Number(d.acertos)||0);
+    if(!questoes.length||indice>=questoes.length){alert("Progresso inválido.");return}
+
+    codigoPartidaAtual=c;
+
+    // Restaura os dados originais também nos campos, sem substituir nome pelo PIN.
+    document.getElementById("nome").value=jogador.nome;
+    document.getElementById("serie").value=jogador.serie;
+    document.getElementById("nomeHud").textContent=jogador.nome;
+    document.getElementById("serieHud").textContent=jogador.serie;
+
+    document.getElementById("telaInicio").classList.add("hidden");
+    document.getElementById("telaFinal").classList.add("hidden");
+    document.getElementById("telaRanking").classList.add("hidden");
+    document.getElementById("telaJogo").classList.remove("hidden");
+    renderQuestao();
+  }catch(e){
+    console.error(e);
+    alert("Não consegui carregar. Verifique a internet.");
+  }
+}
+
+async function carregarRankingFirebase(){
+  const corpo=document.getElementById("rankingFirebase");
+  corpo.innerHTML='<tr><td colspan="6" class="ranking-vazio">⏳ Carregando ranking...</td></tr>';
+  try{
+    const consulta=query(collection(db,"ranking"),orderBy("pontos","desc"),limit(100));
+    const snap=await getDocs(consulta);
+    const dados=[];
+    snap.forEach(d=>dados.push(d.data()));
+    dados.sort((a,b)=>(Number(b.pontos)||0)-(Number(a.pontos)||0)||(Number(b.percentual)||0)-(Number(a.percentual)||0));
+    corpo.innerHTML="";
+    if(!dados.length){
+      corpo.innerHTML='<tr><td colspan="6" class="ranking-vazio">Ainda não há resultados. Seja o primeiro! 🎮</td></tr>';
+      return;
+    }
+    dados.forEach((r,i)=>{
+      const tr=document.createElement("tr");
+      const pos=i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1)+"º";
+      const nome=String(r.nome||"Estudante");
+      const sala=String(r.sala||r.serie||"-");
+      const pontos=Number(r.pontos)||0;
+      const acertos=Number(r.acertos)||0;
+      const total=Number(r.total)||0;
+      const percentual=Number(r.percentual)||0;
+      [pos,nome,sala,pontos,acertos+(total?"/"+total:""),percentual+"%"].forEach(v=>{
+        const td=document.createElement("td");td.textContent=v;tr.appendChild(td);
+      });
+      corpo.appendChild(tr);
+    });
+  }catch(e){
+    console.error(e);
+    corpo.innerHTML='<tr><td colspan="6" class="ranking-vazio">❌ Não foi possível carregar o ranking. Verifique a internet e as regras do Firestore.</td></tr>';
+  }
+}
+document.getElementById('comecar').addEventListener('click',()=>{
+  const nome=document.getElementById('nome').value.trim();
+  const serie=document.getElementById('serie').value;
+  if(!nome){alert('Digite seu nome para começar.');return}
+  if(!serie){alert('Digite sua sala. Ex.: 7A');return}
+  codigoPartidaAtual=null;
+  jogador={nome,serie};
+  questoes=embaralhar(lerQuestoes());
+  indice=0;pontos=0;acertos=0;
+  document.getElementById('telaInicio').classList.add('hidden');
+  document.getElementById('telaFinal').classList.add('hidden');
+  document.getElementById('telaJogo').classList.remove('hidden');
+  document.getElementById('nomeHud').textContent=nome;
+  document.getElementById('serieHud').textContent=serie;
+  renderQuestao();
+});
+
+function renderQuestao(){
+  bloqueado=false;
+  const q=questoes[indice];
+  document.getElementById('numeroQ').textContent=indice+1;
+  document.getElementById('totalQ').textContent=questoes.length;
+  document.getElementById('pontosHud').textContent=pontos;
+  document.getElementById('equacao').textContent=q.equacao;
+  document.getElementById('feedback').textContent='';
+  document.getElementById('proxima').style.display='none';
+  document.getElementById('progresso').style.width=((indice/questoes.length)*100)+'%';
+
+  const area=document.getElementById('alternativas');
+  area.innerHTML='';
+  q.alternativas.forEach((alt,i)=>{
+    const b=document.createElement('button');
+    b.className='alt';
+    b.textContent=String.fromCharCode(65+i)+') '+alt;
+    b.addEventListener('click',()=>responder(i,b));
+    area.appendChild(b);
+  });
+}
+
+function responder(escolha,botao){
+  if(bloqueado)return;
+  bloqueado=true;
+  const q=questoes[indice];
+  const botoes=[...document.querySelectorAll('.alt')];
+  botoes.forEach((b)=>{
+    b.disabled=true;
+  });
+  if(escolha===q.correta){
+    acertos++;
+    pontos+=Number(q.pontos)||100;
+    botao.classList.add('certa');
+    document.getElementById('feedback').textContent='✅ BOA! Você acertou e ganhou '+q.pontos+' pontos!';
+  }else{
+    botao.classList.add('errada');
+    document.getElementById('feedback').textContent='❌ Não foi dessa vez! Tente novamente na próxima missão.';
+  }
+  document.getElementById('pontosHud').textContent=pontos;
+  document.getElementById('proxima').style.display='block';
+}
+
+document.getElementById('proxima').addEventListener('click',()=>{
+  indice++;
+  if(indice>=questoes.length)finalizar();
+  else renderQuestao();
+});
+
+function finalizar(){
+  const percentual=Math.round((acertos/questoes.length)*100);
+  const ranking=JSON.parse(localStorage.getItem(CHAVE_R)||'[]');
+  ranking.push({
+    nome:jogador.nome,
+    serie:jogador.serie,
+    pontos,
+    acertos,
+    total:questoes.length,
+    percentual,
+    data:new Date().toISOString()
+  });
+  ranking.sort((a,b)=>b.pontos-a.pontos||b.percentual-a.percentual);
+  localStorage.setItem(CHAVE_R,JSON.stringify(ranking.slice(0,100)));
+  addDoc(collection(db,"ranking"),{nome:jogador.nome,sala:jogador.serie||"",pontos:Number(pontos)||0,acertos:Number(acertos)||0,total:questoes.length,percentual,finalizadoEm:serverTimestamp()}).catch(console.error);
+  if(codigoPartidaAtual)updateDoc(doc(db,"progresso",codigoPartidaAtual),{status:"finalizado",atualizadoEm:serverTimestamp()}).catch(console.error);
+
+  document.getElementById('telaJogo').classList.add('hidden');
+  document.getElementById('telaFinal').classList.remove('hidden');
+  document.getElementById('textoFinal').textContent=
+    jogador.nome+', você acertou '+acertos+' de '+questoes.length+' questões ('+percentual+'%).';
+  document.getElementById('placarFinal').textContent=pontos+' PONTOS ⭐';
+}
+
+document.getElementById('darUmTempo').addEventListener('click',salvarNuvem);
+document.getElementById('retomarJogo').addEventListener('click',retomarNuvem);
+document.getElementById('codigoRetomar').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,4));
+document.getElementById('sairDepoisSalvar').addEventListener('click',()=>{document.getElementById('modalPausa').classList.add('hidden');document.getElementById('telaJogo').classList.add('hidden');document.getElementById('telaInicio').classList.remove('hidden')});
+
+document.getElementById('abrirRanking').addEventListener('click',()=>{
+  document.getElementById('telaInicio').classList.add('hidden');
+  document.getElementById('telaJogo').classList.add('hidden');
+  document.getElementById('telaFinal').classList.add('hidden');
+  document.getElementById('telaRanking').classList.remove('hidden');
+  carregarRankingFirebase();
+});
+document.getElementById('atualizarRanking').addEventListener('click',carregarRankingFirebase);
+document.getElementById('voltarRanking').addEventListener('click',()=>{
+  document.getElementById('telaRanking').classList.add('hidden');
+  document.getElementById('telaInicio').classList.remove('hidden');
+});
+document.getElementById('jogarNovamente').addEventListener('click',()=>{
+  document.getElementById('telaFinal').classList.add('hidden');
+  document.getElementById('telaInicio').classList.remove('hidden');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel da Professora - Desafio das Equações</title>
+  <style>
+    :root{
+      --green:#3d8b37;
+      --green2:#62b84e;
+      --dark:#1f2937;
+      --cream:#fff8dc;
+      --gold:#ffd54a;
+      --red:#dc2626;
+      --blue:#2563eb;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Verdana,Arial,sans-serif;
+      color:#fff;
+      min-height:100vh;
+      background:
+        linear-gradient(to bottom,#70c9ff 0 45%,#a7df5c 45% 48%,#5e8f3b 48% 52%,#7a4d28 52% 100%);
+      background-attachment:fixed;
+    }
+    body:before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.18;
+      background-image:
+        linear-gradient(90deg,rgba(255,255,255,.35) 1px,transparent 1px),
+        linear-gradient(rgba(255,255,255,.35) 1px,transparent 1px);
+      background-size:32px 32px;
+    }
+    .topo{
+      background:#1f2937e8;
+      border-bottom:5px solid #111827;
+      padding:18px;
+      text-align:center;
+      box-shadow:0 5px 0 rgba(0,0,0,.18);
+    }
+    .topo h1{margin:0;font-size:clamp(24px,4vw,44px);text-shadow:3px 3px #000}
+    .topo p{margin:8px 0 0;color:#d1fae5}
+    .wrap{max-width:1100px;margin:28px auto;padding:0 16px 40px;position:relative}
+    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px}
+    .card{
+      background:rgba(17,24,39,.86);
+      border:4px solid #0b1220;
+      box-shadow:8px 8px 0 rgba(0,0,0,.28);
+      padding:20px;
+      border-radius:6px;
+    }
+    h2{margin-top:0}
+    label{display:block;font-weight:700;margin:12px 0 6px}
+    input,select{
+      width:100%;
+      padding:13px;
+      border:3px solid #374151;
+      background:#f9fafb;
+      color:#111827;
+      font-size:16px;
+      border-radius:4px;
+    }
+    .duplo{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    button,.btn{
+      border:0;
+      padding:13px 18px;
+      font-weight:800;
+      font-size:16px;
+      cursor:pointer;
+      border-radius:4px;
+      box-shadow:0 4px 0 rgba(0,0,0,.35);
+      transition:.1s;
+    }
+    button:active,.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.35)}
+    .verde{background:var(--green2);color:#10210d}
+    .azul{background:#60a5fa;color:#0b1a33}
+    .vermelho{background:#f87171;color:#3f0b0b}
+    .amarelo{background:var(--gold);color:#3d2f00}
+    .acoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .questao{
+      background:#f8fafc;
+      color:#111827;
+      margin:10px 0;
+      padding:13px;
+      border-left:8px solid #62b84e;
+      border-radius:4px;
+    }
+    .questao small{color:#475569}
+    .questao .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .ranking table{width:100%;border-collapse:collapse;background:#fff;color:#111827}
+    th,td{padding:10px;border:2px solid #d1d5db;text-align:left}
+    th{background:#fde68a}
+    .info{
+      background:#ecfccb;
+      color:#284015;
+      border:3px solid #84cc16;
+      padding:12px;
+      margin-bottom:16px;
+      border-radius:4px;
+      font-weight:700;
+    }
+    .contador{display:inline-block;background:#22c55e;color:#052e16;padding:6px 10px;border-radius:4px}
+    a.jogar{display:inline-block;text-decoration:none}
+    @media(max-width:850px){.grid{grid-template-columns:1fr}.duplo{grid-template-columns:1fr}}
+  
+    /* Visual limpo: usa apenas o fundo Minecraft em CSS definido acima. */
+  </style>
+</head>
+<body>
+  <header class="topo">
+    <h1>⛏️ Desafio das Equações</h1>
+    <p>Painel da Professora</p>
+  </header>
+
+  <main class="wrap">
+    <div class="info">
+      Cadastre as questões aqui. Elas ficarão salvas neste navegador. Para compartilhar questões e ranking entre vários aparelhos, depois podemos ligar ao Firebase.
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>🧱 Nova questão</h2>
+        <form id="formQuestao">
+          <label for="equacao">Equação</label>
+          <input id="equacao" required placeholder="Ex.: 5x - 10 = 3x + 16">
+
+          <div class="duplo">
+            <div><label for="a">Alternativa A</label><input id="a" required placeholder="8"></div>
+            <div><label for="b">Alternativa B</label><input id="b" required placeholder="13"></div>
+            <div><label for="c">Alternativa C</label><input id="c" required placeholder="18"></div>
+            <div><label for="d">Alternativa D</label><input id="d" required placeholder="21"></div>
+          </div>
+
+          <div class="duplo">
+            <div>
+              <label for="correta">Resposta correta</label>
+              <select id="correta">
+                <option value="0">Alternativa A</option>
+                <option value="1">Alternativa B</option>
+                <option value="2">Alternativa C</option>
+                <option value="3">Alternativa D</option>
+              </select>
+            </div>
+            <div>
+              <label for="pontos">Pontos</label>
+              <input id="pontos" type="number" min="10" max="1000" value="100">
+            </div>
+          </div>
+
+          <div class="acoes">
+            <button class="verde" type="submit">➕ Adicionar questão</button>
+            <a class="btn azul jogar" href="aluno.html">🎮 Abrir jogo do aluno</a>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>📚 Questões cadastradas <span class="contador" id="contador">0</span></h2>
+        <div id="listaQuestoes"></div>
+        <div class="acoes">
+          <button class="vermelho" id="apagarQuestoes" type="button">🗑 Apagar todas</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="card ranking" style="margin-top:20px">
+      <h2>🏆 Ranking dos estudantes</h2>
+      <div style="overflow:auto">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Nome</th><th>Série</th><th>Pontos</th><th>Acertos</th><th>%</th></tr>
+          </thead>
+          <tbody id="rankingBody"></tbody>
+        </table>
+      </div>
+      <div class="acoes">
+        <button class="amarelo" id="atualizarRanking" type="button">🔄 Atualizar ranking</button>
+        <button class="vermelho" id="limparRanking" type="button">🧹 Limpar ranking</button>
+      </div>
+    </section>
+  </main>
+
+<script>
+const CHAVE_Q = 'equacoes_minecraft_questoes';
+const CHAVE_R = 'equacoes_minecraft_ranking';
+
+const questoesPadrao = [
+  {equacao:'3x - 7 = 20', alternativas:['7','8','9','10'], correta:2, pontos:100},
+  {equacao:'4x + 6 = 30', alternativas:['4','5','6','7'], correta:2, pontos:100},
+  {equacao:'5x - 8 = 27', alternativas:['5','6','7','8'], correta:2, pontos:100},
+  {equacao:'4m + 12 = 2m + 24', alternativas:['4','5','6','7'], correta:2, pontos:100},
+  {equacao:'6x - 10 = 3x + 20', alternativas:['8','9','10','12'], correta:2, pontos:100},
+  {equacao:'7y + 5 = 5y + 19', alternativas:['5','6','7','8'], correta:2, pontos:100},
+  {equacao:'3(x - 4) = 18', alternativas:['8','9','10','11'], correta:2, pontos:100},
+  {equacao:'2(x + 5) = 24', alternativas:['5','6','7','8'], correta:2, pontos:100},
+  {equacao:'4(x - 2) = 28', alternativas:['7','8','9','10'], correta:2, pontos:100},
+  {equacao:'x/3 + 4 = 10', alternativas:['12','15','18','21'], correta:2, pontos:100},
+  {equacao:'y/5 + 2 = 8', alternativas:['20','25','30','35'], correta:2, pontos:100},
+  {equacao:'m/4 - 3 = 5', alternativas:['24','28','32','36'], correta:2, pontos:100},
+  {equacao:'8x - 15 = 5x + 12', alternativas:['7','8','9','10'], correta:2, pontos:100},
+  {equacao:'5(x - 3) = 30', alternativas:['7','8','9','10'], correta:2, pontos:100},
+  {equacao:'x/2 + 7 = 15', alternativas:['12','14','16','18'], correta:2, pontos:100},
+ {equacao:'4x - 7 = 29',alternativas:['7','8','9','10'],correta:2,pontos:100},
+ {equacao:'6x + 5 = 2x + 33',alternativas:['5','6','7','8'],correta:2,pontos:120},
+ {equacao:'5x - 9 = 2x + 18',alternativas:['7','8','9','10'],correta:2,pontos:120},
+ {equacao:'3m + 14 = m + 30',alternativas:['6','7','8','9'],correta:2,pontos:120},
+ {equacao:'8y - 11 = 5y + 16',alternativas:['7','8','9','10'],correta:2,pontos:120},
+ {equacao:'4(x - 3) = 32',alternativas:['8','9','10','11'],correta:3,pontos:130},
+ {equacao:'5(x + 2) = 45',alternativas:['5','6','7','8'],correta:2,pontos:130},
+ {equacao:'3(x - 5) + 6 = 24',alternativas:['9','10','11','12'],correta:2,pontos:150},
+ {equacao:'2(x + 4) - 3 = 19',alternativas:['5','6','7','8'],correta:2,pontos:150},
+ {equacao:'4(x - 2) + 6 = 30',alternativas:['6','7','8','9'],correta:2,pontos:150},
+ {equacao:'x/4 + 5 = 11',alternativas:['16','20','24','28'],correta:2,pontos:130},
+ {equacao:'y/3 - 4 = 5',alternativas:['21','24','27','30'],correta:2,pontos:130},
+ {equacao:'m/6 + 3 = 8',alternativas:['24','27','30','36'],correta:2,pontos:130},
+ {equacao:'x/5 + 7 = 11',alternativas:['15','18','20','25'],correta:2,pontos:140},
+ {equacao:'(x/3) + 2 = 7',alternativas:['9','12','15','18'],correta:2,pontos:140},
+ {equacao:'7x - 4 = 3x + 28',alternativas:['6','7','8','9'],correta:2,pontos:150},
+ {equacao:'9x + 7 = 6x + 34',alternativas:['7','8','9','10'],correta:2,pontos:150},
+ {equacao:'2m + 18 = m - 15',alternativas:['-35','-34','-33','-32'],correta:2,pontos:170},
+ {equacao:'3(x - 2) = 2x + 7',alternativas:['11','12','13','14'],correta:2,pontos:170},
+ {equacao:'(y/4) + 6 = 10',alternativas:['12','14','16','18'],correta:2,pontos:150}
+];
+
+function lerQuestoes(){
+  const salvas = JSON.parse(localStorage.getItem(CHAVE_Q) || 'null');
+  if(!salvas){
+    localStorage.setItem(CHAVE_Q, JSON.stringify(questoesPadrao));
+    return questoesPadrao;
+  }
+  const existentes = new Set(salvas.map(q => q.equacao));
+  const novas = questoesPadrao.filter(q => !existentes.has(q.equacao));
+  if(novas.length){ salvas.push(...novas); localStorage.setItem(CHAVE_Q, JSON.stringify(salvas)); }
+  return salvas;
+}
+function salvarQuestoes(qs){ localStorage.setItem(CHAVE_Q, JSON.stringify(qs)); }
+function lerRanking(){ return JSON.parse(localStorage.getItem(CHAVE_R) || '[]'); }
+
+function renderQuestoes(){
+  const qs=lerQuestoes();
+  const lista=document.getElementById('listaQuestoes');
+  document.getElementById('contador').textContent=qs.length;
+  lista.innerHTML='';
+  if(!qs.length){
+    lista.innerHTML='<p>Nenhuma questão cadastrada.</p>';
+    return;
+  }
+  qs.forEach((q,i)=>{
+    const div=document.createElement('div');
+    div.className='questao';
+    div.innerHTML=`
+      <div class="row">
+        <div>
+          <strong>${i+1}. ${esc(q.equacao)}</strong><br>
+          <small>Correta: ${esc(q.alternativas[q.correta])} • ${q.pontos} pontos</small>
+        </div>
+        <button type="button" class="vermelho" data-i="${i}">Excluir</button>
+      </div>`;
+    div.querySelector('button').addEventListener('click',()=>{
+      const atual=lerQuestoes();
+      atual.splice(i,1);
+      salvarQuestoes(atual);
+      renderQuestoes();
+    });
+    lista.appendChild(div);
+  });
+}
+
+function renderRanking(){
+  const dados=lerRanking().sort((a,b)=>b.pontos-a.pontos || b.percentual-a.percentual);
+  const tb=document.getElementById('rankingBody');
+  tb.innerHTML='';
+  if(!dados.length){
+    tb.innerHTML='<tr><td colspan="6">Ainda não há jogadores no ranking.</td></tr>';
+    return;
+  }
+  dados.forEach((r,i)=>{
+    const medalha=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'º';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${medalha}</td><td>${esc(r.nome)}</td><td>${esc(r.serie)}</td><td>${r.pontos}</td><td>${r.acertos}/${r.total}</td><td>${r.percentual}%</td>`;
+    tb.appendChild(tr);
+  });
+}
+function esc(t){
+  return String(t).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
+document.getElementById('formQuestao').addEventListener('submit',e=>{
+  e.preventDefault();
+  const alternativas=['a','b','c','d'].map(id=>document.getElementById(id).value.trim());
+  const nova={
+    equacao:document.getElementById('equacao').value.trim(),
+    alternativas,
+    correta:Number(document.getElementById('correta').value),
+    pontos:Math.max(10,Math.min(1000,Number(document.getElementById('pontos').value)||100))
+  };
+  const qs=lerQuestoes(); qs.push(nova); salvarQuestoes(qs);
+  e.target.reset(); document.getElementById('pontos').value=100;
+  renderQuestoes();
+});
+
+document.getElementById('apagarQuestoes').addEventListener('click',()=>{
+  if(confirm('Apagar todas as questões cadastradas?')){
+    salvarQuestoes([]); renderQuestoes();
+  }
+});
+document.getElementById('atualizarRanking').addEventListener('click',renderRanking);
+document.getElementById('limparRanking').addEventListener('click',()=>{
+  if(confirm('Deseja realmente limpar o ranking?')){
+    localStorage.setItem(CHAVE_R,'[]'); renderRanking();
+  }
+});
+
+renderQuestoes();
+renderRanking();
+</script>
+</body>
+</html>
