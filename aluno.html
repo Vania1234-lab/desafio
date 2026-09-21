@@ -240,6 +240,13 @@ function embaralhar(arr){
   return a;
 }
 
+// Embaralha as alternativas sem perder qual é a resposta correta.
+function embaralharAlternativas(q){
+  const corretaValor=q.alternativas[q.correta];
+  const alternativas=embaralhar(q.alternativas);
+  return {...q, alternativas, correta:alternativas.indexOf(corretaValor)};
+}
+
 async function codigoLivre(){for(let i=0;i<50;i++){const c=String(Math.floor(1000+Math.random()*9000));if(!(await getDoc(doc(db,"progresso",c))).exists())return c}throw Error("codigo")}
 async function salvarNuvem(){
  const b=document.getElementById("darUmTempo");b.disabled=true;b.textContent="💾 SALVANDO...";
@@ -324,7 +331,7 @@ document.getElementById('comecar').addEventListener('click',()=>{
   if(!serie){alert('Digite sua sala. Ex.: 7A');return}
   codigoPartidaAtual=null;
   jogador={nome,serie};
-  questoes=embaralhar(lerQuestoes());
+  questoes=embaralhar(lerQuestoes().map(embaralharAlternativas));
   indice=0;pontos=0;acertos=0;
   document.getElementById('telaInicio').classList.add('hidden');
   document.getElementById('telaFinal').classList.add('hidden');
