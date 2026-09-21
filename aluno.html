@@ -352,13 +352,19 @@ function renderQuestao(){
   document.getElementById('proxima').style.display='none';
   document.getElementById('progresso').style.width=((indice/questoes.length)*100)+'%';
 
+  // Embaralha as alternativas na tela sem alterar a questão salva.
+  // Cada exibição pode colocar a resposta correta em A, B, C ou D.
+  const opcoes=q.alternativas.map((texto,indiceOriginal)=>({texto,indiceOriginal}));
+  const opcoesEmbaralhadas=embaralhar(opcoes);
+
   const area=document.getElementById('alternativas');
   area.innerHTML='';
-  q.alternativas.forEach((alt,i)=>{
+  opcoesEmbaralhadas.forEach((opcao,i)=>{
     const b=document.createElement('button');
     b.className='alt';
-    b.textContent=String.fromCharCode(65+i)+') '+alt;
-    b.addEventListener('click',()=>responder(i,b));
+    b.textContent=String.fromCharCode(65+i)+') '+opcao.texto;
+    // Envia o índice ORIGINAL, portanto a correção continua usando q.correta.
+    b.addEventListener('click',()=>responder(opcao.indiceOriginal,b));
     area.appendChild(b);
   });
 }
